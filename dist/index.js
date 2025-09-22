@@ -35,6 +35,17 @@ app.put('/data/:id', (req, res) => {
         match.address = address;
     res.json(match);
 });
+// Create the Data
+app.post('/Users', (req, res) => {
+    const { name, address } = req.body;
+    // generate ID based on current array length
+    const id = data.length + 1;
+    // Create one new user
+    const newUser = { id, name, address };
+    // Save to array
+    data.push(newUser);
+    res.status(201).json(newUser);
+});
 app.listen(3000, () => {
     console.log('Server started on port http://localhost:3000/');
 });

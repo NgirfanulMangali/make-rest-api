@@ -43,6 +43,22 @@ app.put('/data/:id', (req: Request, res: Response) => {
 
 })
 
+// Create the Data
+app.post('/Users', (req: Request, res: Response) => {
+    const { name, address} = req.body
+     // generate ID based on current array length
+  const id = data.length + 1;
+
+  // Create one new user
+  const newUser: User = { id, name, address };
+
+  // Save to array
+  data.push(newUser);
+
+  res.status(201).json(newUser);
+})
+
+
 
 
 app.listen(3000, () => {
