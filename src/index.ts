@@ -1,11 +1,45 @@
 import express, { Request, Response } from 'express';
+
+import { PrismaClient } from '../generated/prisma';
 const app = express()
 app.use(express.json())
+
+
+
 interface User {
     id: number;
     name: string;
     address: string;
 }
+
+
+const prisma = new PrismaClient()
+
+async function main() {
+     const post = await prisma.post.update({
+    where: { id: 1 },
+    data: { published: true },
+  })
+  console.log(post)
+}
+
+main()
+  .then(async () => {
+    await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })
+
+
+
+
+
+
+
+
 
 
 // read all data
