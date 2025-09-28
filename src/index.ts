@@ -1,70 +1,60 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 
 import { PrismaClient } from '../generated/prisma';
 const app = express()
 app.use(express.json())
 
 
-
-interface User {
-    id: number;
-    name: string;
-    address: string;
-}
-
-
 const prisma = new PrismaClient()
 
-async function main() {
-     const post = await prisma.post.update({
-    where: { id: 1 },
-    data: { published: true },
-  })
-  console.log(post)
-}
 
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+app.get('/users', async (req, res) => {
+  
+    const users = await prisma.user.findMany({
+      include: { profile: true } 
+    });
 
-
-
-
-
-
-
-
-
-
-// read all data
-
-const data: User[] = [{ id:1, name: "eeee", address: "fffffff"}, { id: 2, name: "John Doe", address: "123 Main St" }];
-// read specific data
-app.get('/', (req: Request, res: Response) => {
-  res.json(data);
-});
-app.post('/newUser', (req: Request, res: Response) => {
-  const newUser: User = req.body;
-  data.push(newUser);
-  res.json(data);
+    res.json(users);
+  
 });
 
-app.delete('/deleteUser/:id', (req: Request, res: Response) => {
-  const userId = parseInt(req.params.id);
-  const index = data.findIndex(user => user.id === userId);
-  if (index !== -1) {
-    data.splice(index, 1);
-    res.json({ message: 'User deleted successfully', data });
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
-});
+
+app.put('/user/:id', async (req, res) => {
+
+  const profile = await prisma.profile.update({
+      where: { userId: Number(req.params.id) },   
+      data: { bio: req.body.bio }                 
+    });
+
+  res.json(profile)
+})
+
+
+app.post('/user', async (req, res) => {
+
+  const user = await prisma.user.create({
+      data: {
+        email: req.body.email,
+        name: req.body.name,
+        profile: {
+          create: { bio: req.body.bio }
+        }
+      },
+      include: { profile: true } 
+    });
+
+  res.json(user)
+})
+
+
+app.delete('/user/:id', async (req, res) => {
+
+  const user = await prisma.user.delete({
+      where: { id: Number(req.params.id) } 
+    });
+
+  res.json(user)
+})
 
 
 app.listen(5000, () => {
